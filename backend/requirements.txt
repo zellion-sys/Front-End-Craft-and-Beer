@@ -1,0 +1,10 @@
+# requirements.txt
+fastapi
+uvicorn[standard]
+pydantic[email]
+motor             # Para la conexión asíncrona a MongoDB
+bson              # Para manejar ObjectIds
+passlib[bcrypt]   # Para hashear contraseñas de forma segura
+python-jose[cryptography] # Para crear y verificar tokens JWT
+python-multipart  # Necesario si usas OAuth2PasswordBearer
+pip install -r requirements.txt
