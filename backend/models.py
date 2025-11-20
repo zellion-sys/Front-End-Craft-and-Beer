@@ -2,59 +2,47 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from bson import ObjectId
-from database import CustomObjectId # Importamos el ayudante
+from datetime import datetime
 
-# Modelo Producto
-class ProductBase(BaseModel):
-    name: str
-    type: str = Field(..., min_length=1)
-    price: int = Field(..., gt=0)
-    description: str
-    image: str
-    alcohol: float = Field(..., ge=0.0, le=20.0)
+# --- Ayudante ObjectId ---
+class CustomObjectId(str):
+    @classmethod
+    def __get_validators__(cls): yield cls.validate
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, str): raise TypeError('String required')
+        try: ObjectId(v); return v
+        except: raise ValueError('Invalid ObjectId')
 
-class ProductResponse(ProductBase):
-    id: CustomObjectId
-    
-    class Config:
-        json_encoders = {
-            ObjectId: lambda oid: str(oid)
-        }
-        allow_population_by_field_name = True
-
-class ProductCreate(ProductBase):
-    pass
-
-# --- Modelos de Autenticación ---
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class UserRegister(BaseModel):
-    name: str
-    email: EmailStr
-    password: str = Field(..., min_length=8)
+# --- Modelos de Usuario (Seguridad) ---
+class UserLogin(BaseModel): email: EmailStr; password: str
+class UserRegister(BaseModel): name: str; email: EmailStr; password: str = Field(..., min_length=8)
 
 class UserResponse(BaseModel):
-    id: CustomObjectId
-    name: str
-    email: EmailStr
-    
-    class Config:
-        json_encoders = {
-            ObjectId: lambda oid: str(oid)
-        }
+    id: CustomObjectId = Field(None, alias="_id")
+    name: str; email: EmailStr
+    class Config: allow_population_by_field_name = True; json_encoders = {ObjectId: str}
 
-class UserInDB(BaseModel):
-    id: Optional[ObjectId] = Field(None, alias="_id")
-    name: str
-    email: EmailStr
+class UserInDB(UserResponse):
     hashed_password: str
     login_attempts: int = 0
     blocked: bool = False
-    
-    class Config:
-        json_encoders = {
-            ObjectId: lambda oid: str(oid)
-        }
-        allow_population_by_field_name = True
+
+# --- Modelo Producto ---
+class ProductBase(BaseModel):
+    name: str; type: str; price: int = Field(..., gt=0); description: str; image: str; alcohol: float
+class ProductResponse(ProductBase):
+    id: CustomObjectId
+    class Config: json_encoders = {ObjectId: str}; allow_population_by_field_name = True
+
+# --- Modelo Pedido ---
+class OrderItem(BaseModel):
+    product_id: CustomObjectId; name: str; price: int; quantity: int = Field(1, gt=0)
+
+class Order(BaseModel):
+    user_email: str
+    total_amount: int
+    items: List[OrderItem]
+    status: str = "PENDING"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    class Config: json_encoders = {ObjectId: str}; allow_population_by_field_name = True
