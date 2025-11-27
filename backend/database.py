@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from auth import get_password_hash # Importamos para el seeding de usuario de prueba
 
 load_dotenv() 
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017") 
+MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://maxdiaz120_db_user:xuUmQ9Bwo0pOtt0x@cluster0.nj4nrpp.mongodb.net/?appName=Cluster0") 
 DATABASE_NAME = os.getenv("DATABASE_NAME", "craft_beer_db")
 
 client: Optional[AsyncIOMotorClient] = None
