@@ -13,9 +13,13 @@ from bson import ObjectId
 app = FastAPI(title="Cervecería Craft & Beer API", version="2.0.0")
 
 # Configurar CORS 
-origins = ["http://localhost:5500", "http://127.0.0.1:5500"]
+# Configurar CORS (MODO PERMISIVO PARA QUE FUNCIONE YA)
 app.add_middleware(
-    CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=["*"],  # <--- ESTO ES LA CLAVE: El asterisco permite todo
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")
