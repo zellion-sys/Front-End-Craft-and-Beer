@@ -10,312 +10,256 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary: #f59e0b;
-            --dark: #111827;
-            --light: #f9fafb;
-            --glass: rgba(255, 255, 255, 0.95);
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--light);
-            /* Patrón de fondo sutil para que no se vea vacío */
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 20px 20px;
-            padding-bottom: 100px;
-            color: var(--dark);
-        }
-
-        /* --- Header Transparente --- */
-        .navbar {
-            background: rgba(17, 24, 39, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .navbar-brand { 
-            font-family: 'Bebas Neue', cursive; 
-            font-size: 1.8rem; 
-            letter-spacing: 1px;
-            color: var(--primary) !important;
-        }
-
-        /* --- HERO SECTION (LA PORTADA) --- */
-        .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), 
-                        url('https://images.unsplash.com/photo-1575482326776-324d27ce6532?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 85vh; /* Ocupa casi toda la pantalla */
-            border-radius: 0 0 40px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            position: relative;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
+        :root { --primary: #f59e0b; --dark: #111827; --light: #f9fafb; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--light); padding-bottom: 90px; color: var(--dark); overflow-x: hidden; }
         
-        .hero-content h1 {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 4rem;
-            line-height: 1;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+        /* Navbar */
+        .navbar { background: rgba(17, 24, 39, 0.98); backdrop-filter: blur(10px); z-index: 1040; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .navbar-brand { font-family: 'Bebas Neue'; font-size: 1.6rem; letter-spacing: 1px; color: var(--primary) !important; cursor: pointer; }
         
-        .hero-btn {
-            background: var(--primary);
-            color: var(--dark);
-            font-weight: 700;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: none;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
-        }
-        .hero-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
-            color: black;
-        }
+        /* Menú Lateral */
+        .offcanvas { background-color: var(--dark); color: white; width: 280px !important; }
+        .menu-link { color: rgba(255,255,255,0.8); text-decoration: none; display: block; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .menu-link:hover { color: var(--primary); padding-left: 20px; background: rgba(255,255,255,0.05); }
 
-        /* --- Tarjetas de Producto --- */
-        .product-card {
-            background: white;
-            border: 1px solid rgba(0,0,0,0.05);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            height: 100%;
+        /* Hero Section (Portada) */
+        .hero-banner { 
+            height: 400px; position: relative; border-radius: 0 0 40px 40px; overflow: hidden; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
         }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        .product-img-wrapper { height: 200px; overflow: hidden; position: relative; }
+        .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.4); }
+        .hero-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; width: 90%; z-index: 2; }
+        .hero-title { font-family: 'Bebas Neue'; font-size: 4rem; line-height: 0.9; margin-bottom: 15px; letter-spacing: 2px; }
+        .hero-btn { background: var(--primary); color: black; font-weight: 700; padding: 15px 45px; border-radius: 50px; border: none; text-transform: uppercase; box-shadow: 0 0 25px rgba(245,158,11,0.6); transition: 0.3s; }
+        .hero-btn:hover { transform: scale(1.05); background: white; }
+
+        /* Bloques de Información (Reemplazan las miniaturas) */
+        .info-card { background: white; border-radius: 15px; padding: 25px; text-align: center; height: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid rgba(0,0,0,0.02); }
+        .info-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .info-icon { font-size: 2.5rem; margin-bottom: 15px; display: block; }
+
+        /* Tarjetas Producto */
+        .product-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: 100%; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .product-img-wrap { height: 180px; overflow: hidden; position: relative; }
         .product-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .product-card:hover .product-img { transform: scale(1.1); }
-        .badge-type {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.9); color: var(--dark);
-            font-weight: 600; padding: 5px 12px; border-radius: 20px;
-            font-size: 0.7rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        .badge-type { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
 
-        /* --- Navegación Inferior Flotante --- */
-        .bottom-nav {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 450px;
-            background: var(--dark);
-            border-radius: 100px;
-            padding: 15px 30px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-        .nav-icon {
-            color: rgba(255,255,255,0.5); text-align: center;
-            font-size: 0.7rem; transition: 0.3s; cursor: pointer; text-decoration: none;
-        }
-        .nav-icon i { font-size: 1.5rem; display: block; margin-bottom: 2px; }
-        .nav-icon.active { color: var(--primary); transform: translateY(-5px); }
-        .nav-icon.active i { filter: drop-shadow(0 0 8px var(--primary)); }
-
-        /* --- Secciones y Animaciones --- */
-        .section { display: none; animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        /* Utils */
+        .section { display: none; animation: fadeIn 0.4s ease-out; }
         .section.active { display: block; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: 0; } }
-
-        /* --- Toasts --- */
-        .toast-container { position: fixed; top: 90px; right: 20px; z-index: 9999; }
-        .custom-toast {
-            background: white; border-left: 5px solid var(--primary);
-            padding: 15px 20px; border-radius: 8px; margin-bottom: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; align-items: center;
-            animation: slideIn 0.3s;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: 0; } }
+        
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1100; width: 300px; }
+        .custom-toast { background: white; border-left: 4px solid var(--primary); padding: 15px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; margin-bottom: 10px; animation: slideIn 0.3s; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 450px; background: rgba(31, 41, 55, 0.95); backdrop-filter: blur(10px); border-radius: 100px; padding: 12px 30px; display: flex; justify-content: space-between; z-index: 1030; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .nav-icon { color: rgba(255,255,255,0.4); font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
+        .nav-icon.active { color: var(--primary); transform: translateY(-3px); }
+
+        #paymentOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
     </style>
 </head>
 <body>
 
     <nav class="navbar navbar-dark sticky-top">
         <div class="container d-flex justify-content-between align-items-center">
-            <span class="navbar-brand m-0" onclick="showSection('home')"><i class="bi bi-droplet-fill"></i> CRAFT & BEER</span>
+            <span class="navbar-brand m-0" onclick="showSection('home')">
+                <i class="bi bi-droplet-fill text-warning"></i> Craft & Beer
+            </span>
+            
             <div class="d-flex align-items-center gap-3">
-                <span id="userDisplay" class="text-white small opacity-75">Invitado</span>
-                <i class="bi bi-box-arrow-right text-danger d-none" id="logoutBtn" onclick="handleLogout()" style="cursor:pointer; font-size: 1.2rem;"></i>
+                <span id="userDisplay" class="text-white small fw-bold opacity-75">Invitado</span>
+                <button class="btn text-white fs-4 p-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu">
+                    <i class="bi bi-list"></i>
+                </button>
             </div>
         </div>
     </nav>
 
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sideMenu">
+        <div class="offcanvas-header">
+            <h5 class="text-warning m-0 font-monospace">MENÚ</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="p-4 bg-white bg-opacity-10 mb-2">
+                <div class="fw-bold text-white fs-5" id="menuUserName">Invitado</div>
+                <div class="small text-white-50" id="menuUserEmail">Inicia sesión para comprar</div>
+            </div>
+            <a href="#" class="menu-link" onclick="showSection('home');closeMenu()"><i class="bi bi-house me-2"></i> Inicio</a>
+            <a href="#" class="menu-link" onclick="showSection('catalog');closeMenu()"><i class="bi bi-grid me-2"></i> Catálogo</a>
+            <a href="#" class="menu-link" onclick="showSection('orders');closeMenu()"><i class="bi bi-receipt me-2"></i> Mis Pedidos</a>
+            <a href="#" class="menu-link" onclick="showSection('auth');closeMenu()"><i class="bi bi-person me-2"></i> Mi Cuenta</a>
+            <a href="#" class="menu-link text-warning" onclick="showSection('admin');closeMenu()"><i class="bi bi-gear me-2"></i> Admin</a>
+            <hr class="border-secondary m-0">
+            <a href="#" class="menu-link text-danger" onclick="handleLogout();closeMenu()"><i class="bi bi-box-arrow-right me-2"></i> Salir</a>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
+    
+    <div id="paymentOverlay">
+        <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;"></div>
+        <h4 class="fw-bold">Procesando Transacción...</h4>
+        <p class="text-white-50">Conectando con Webpay Plus</p>
+    </div>
 
     <section id="home-section" class="section active">
-        <div class="hero-section">
+        <div class="hero-banner">
+            <img src="http://127.0.0.1:8000/static/portada.jpg" class="hero-img" alt="Portada">
             <div class="hero-content">
-                <span class="text-uppercase text-warning ls-2 small fw-bold">Premium Quality</span>
-                <h1>Cerveza<br>Artesanal</h1>
-                <p class="lead mb-4 opacity-75">El sabor auténtico directo a tu puerta.</p>
-                <button class="hero-btn" onclick="showSection('catalog')">
-                    Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
-                </button>
+                <span class="badge bg-warning text-dark mb-3 px-3 py-2 shadow fw-bold">COLECCIÓN 2025</span>
+                <h1 class="hero-title">SABOR<br>ARTESANAL</h1>
+                <p class="text-white-50 mb-4 fs-5">La mejor selección de cervezas directo a tu mesa.</p>
+                <button class="hero-btn" onclick="showSection('catalog')">Ver Tienda</button>
             </div>
         </div>
         
-        <div class="container mb-5">
-            <div class="row g-4 text-center">
-                <div class="col-4">
-                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
-                        <i class="bi bi-lightning-charge-fill text-warning fs-2"></i>
-                        <h6 class="mt-2 fw-bold">Rápido</h6>
+        <div class="container mt-5 mb-5">
+            <div class="row g-3">
+                <div class="col-12 text-center mb-3">
+                    <h3 class="fw-bold">Nuestra Promesa</h3>
+                    <p class="text-muted">Calidad garantizada en cada botella</p>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <i class="bi bi-truck text-primary info-icon"></i>
+                        <h5>Envío Rápido</h5>
+                        <p class="text-muted small m-0">Despacho en menos de 24 horas a todo Santiago.</p>
                     </div>
                 </div>
-                <div class="col-4">
-                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
-                        <i class="bi bi-shield-check-fill text-success fs-2"></i>
-                        <h6 class="mt-2 fw-bold">Seguro</h6>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <i class="bi bi-shield-check text-success info-icon"></i>
+                        <h5>Pago Seguro</h5>
+                        <p class="text-muted small m-0">Transacciones encriptadas con Webpay Plus.</p>
                     </div>
                 </div>
-                <div class="col-4">
-                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
-                        <i class="bi bi-award-fill text-primary fs-2"></i>
-                        <h6 class="mt-2 fw-bold">Premium</h6>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <i class="bi bi-award text-warning info-icon"></i>
+                        <h5>Premium</h5>
+                        <p class="text-muted small m-0">Ingredientes 100% naturales seleccionados.</p>
                     </div>
+                </div>
+            </div>
+
+            <div class="card bg-dark text-white border-0 shadow-lg rounded-4 p-5 mt-5 text-center" onclick="showSection('catalog')" style="cursor: pointer;">
+                <span class="text-warning fw-bold ls-2">OFERTA LIMITADA</span>
+                <h2 class="display-6 fw-bold my-2">Pack Degustación 20% OFF</h2>
+                <button class="btn btn-outline-light rounded-pill px-4 mt-3">Ir al Catálogo</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="catalog-section" class="section">
+        <div class="container mt-4">
+            <h2 class="fw-bold mb-4">Catálogo</h2>
+            
+            <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
+                <button class="btn btn-dark rounded-pill px-4" onclick="applyFilterType('')">Todo</button>
+                <button class="btn btn-outline-dark rounded-pill px-4" onclick="applyFilterType('IPA')">IPA</button>
+                <button class="btn btn-outline-dark rounded-pill px-4" onclick="applyFilterType('Stout')">Stout</button>
+                <button class="btn btn-outline-dark rounded-pill px-4" onclick="applyFilterType('Lager')">Lager</button>
+            </div>
+
+            <div class="input-group mb-4 shadow-sm rounded-pill overflow-hidden bg-white">
+                <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="searchInput" class="form-control border-0" placeholder="Buscar..." onkeyup="handleSearch()">
+            </div>
+
+            <div id="productsGrid" class="row g-4"></div>
+            <div class="d-flex justify-content-center gap-2 mt-5" id="paginationControls"></div>
+        </div>
+    </section>
+
+    <section id="auth-section" class="section">
+        <div class="container mt-5">
+            <div class="card border-0 shadow-lg p-4 rounded-5 text-center">
+                <div class="mb-4 text-warning"><i class="bi bi-person-circle display-1"></i></div>
+                <h3 class="fw-bold mb-4">Acceso Clientes</h3>
+                <div id="loginBlock">
+                    <form onsubmit="event.preventDefault(); handleLogin();">
+                        <input type="email" id="loginEmail" class="form-control mb-3 p-3" placeholder="Email" required>
+                        <input type="password" id="loginPass" class="form-control mb-3 p-3" placeholder="Contraseña" required>
+                        <button type="submit" class="btn btn-dark w-100 py-3 rounded-4 fw-bold">Ingresar</button>
+                    </form>
+                    <p class="mt-4 small">¿Nuevo? <a href="#" onclick="toggleAuthMode()" class="fw-bold text-warning">Regístrate</a></p>
+                </div>
+                <div id="registerBlock" style="display:none;">
+                    <form onsubmit="event.preventDefault(); handleRegister();">
+                        <input type="text" id="regName" class="form-control mb-3" placeholder="Nombre" required>
+                        <input type="email" id="regEmail" class="form-control mb-3" placeholder="Email" required>
+                        <input type="password" id="regPass" class="form-control mb-3" placeholder="Contraseña" required>
+                        <button type="submit" class="btn btn-warning w-100 py-3 rounded-4 fw-bold">Crear Cuenta</button>
+                    </form>
+                    <p class="mt-4 small"><a href="#" onclick="toggleAuthMode()" class="fw-bold text-dark">Volver</a></p>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="container mt-4">
-        
-        <section id="catalog-section" class="section">
-            <div class="d-flex align-items-center mb-4">
-                <h2 class="fw-bold m-0 flex-grow-1">Nuestra Selección</h2>
-                <button class="btn btn-outline-dark rounded-circle" onclick="fetchProducts()"><i class="bi bi-arrow-clockwise"></i></button>
-            </div>
-
-            <div class="d-flex gap-2 overflow-auto mb-4 pb-2" style="scrollbar-width: none;">
-                <button class="btn btn-dark rounded-pill px-4" onclick="applyFilterType('')">Todo</button>
-                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('IPA')">IPA</button>
-                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('Stout')">Stout</button>
-                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('Lager')">Lager</button>
-            </div>
-
-            <div id="productsGrid" class="row g-3">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-warning"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="auth-section" class="section">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-lg p-4 rounded-5 text-center">
-                        <div class="mb-4">
-                            <div class="bg-warning bg-opacity-10 d-inline-block p-3 rounded-circle text-warning mb-3">
-                                <i class="bi bi-person-fill fs-1"></i>
-                            </div>
-                            <h3 class="fw-bold">Cuenta de Usuario</h3>
-                        </div>
-
-                        <div id="loginBlock">
-                            <form onsubmit="event.preventDefault(); handleLogin();">
-                                <input type="email" id="loginEmail" class="form-control mb-3 p-3 bg-light border-0" placeholder="Correo electrónico" required>
-                                <input type="password" id="loginPass" class="form-control mb-3 p-3 bg-light border-0" placeholder="Contraseña" required>
-                                <button type="submit" class="btn btn-dark w-100 py-3 rounded-4 fw-bold">Ingresar</button>
-                            </form>
-                            <p class="mt-3 text-muted small">¿No tienes cuenta? <a href="#" onclick="toggleAuthMode()" class="text-warning fw-bold">Regístrate</a></p>
-                        </div>
-
-                        <div id="registerBlock" style="display:none;">
-                            <form onsubmit="event.preventDefault(); handleRegister();">
-                                <input type="text" id="regName" class="form-control mb-3 p-3 bg-light border-0" placeholder="Tu Nombre" required>
-                                <input type="email" id="regEmail" class="form-control mb-3 p-3 bg-light border-0" placeholder="Correo electrónico" required>
-                                <input type="password" id="regPass" class="form-control mb-3 p-3 bg-light border-0" placeholder="Contraseña (Min 8)" required>
-                                <button type="submit" class="btn btn-warning w-100 py-3 rounded-4 fw-bold">Crear Cuenta</button>
-                            </form>
-                            <p class="mt-3 text-muted small">¿Ya tienes cuenta? <a href="#" onclick="toggleAuthMode()" class="text-dark fw-bold">Ingresa aquí</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="cart-section" class="section">
-            <h2 class="fw-bold mb-4">Tu Pedido</h2>
+    <section id="cart-section" class="section">
+        <div class="container mt-4">
+            <h2 class="fw-bold mb-4">Carrito</h2>
             <div id="cartItems"></div>
             
-            <div class="card border-0 shadow-lg rounded-4 bg-dark text-white p-4 mt-3">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="opacity-75">Envío</span>
-                    <span class="text-success">GRATIS</span>
-                </div>
-                <div class="d-flex justify-content-between mb-4 fs-3 fw-bold">
-                    <span>Total</span>
-                    <span id="cartTotal" class="text-warning">$0</span>
-                </div>
-                <button class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow" onclick="proceedToCheckout()">
-                    Confirmar Pedido <i class="bi bi-bag-check-fill ms-2"></i>
-                </button>
+            <div class="card p-4 border-0 shadow-sm mt-4 bg-white rounded-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt text-danger"></i> Dirección de Envío</h6>
+                <input type="text" id="deliveryAddress" class="form-control p-3 bg-light border-0" placeholder="Ej: Av. Providencia 1234">
             </div>
-        </section>
 
-        <section id="orders-section" class="section">
-            <h2 class="fw-bold mb-4">Historial</h2>
+            <div class="card bg-dark text-white p-4 rounded-4 shadow-lg mt-3 border-0">
+                <div class="d-flex justify-content-between mb-4 fs-3 fw-bold">
+                    <span>Total</span><span id="cartTotal" class="text-warning">$0</span>
+                </div>
+                <button class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow" onclick="proceedToCheckout()">Pagar Ahora</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="orders-section" class="section">
+        <div class="container mt-4">
+            <h2 class="fw-bold mb-4">Historial de Compras</h2>
             <div id="ordersList" class="d-flex flex-column gap-3"></div>
-        </section>
+        </div>
+    </section>
 
-        <section id="admin-section" class="section">
-            <div class="card border-0 shadow-sm p-4 rounded-4">
-                <h4 class="mb-4 text-danger"><i class="bi bi-shield-lock-fill"></i> Panel Admin</h4>
+    <section id="admin-section" class="section">
+        <div class="container mt-4">
+            <div class="card border-0 shadow p-4 rounded-4">
+                <h4 class="mb-4 text-primary">Agregar Producto</h4>
                 <form onsubmit="event.preventDefault(); createProduct();">
-                    <input type="text" id="prodName" class="form-control mb-3" placeholder="Nombre Cerveza" required>
+                    <input type="text" id="prodName" class="form-control mb-3" placeholder="Nombre" required>
                     <select id="prodType" class="form-select mb-3">
-                        <option value="IPA">IPA</option>
-                        <option value="Stout">Stout</option>
-                        <option value="Lager">Lager</option>
+                        <option value="IPA">IPA</option><option value="Stout">Stout</option><option value="Lager">Lager</option>
                     </select>
                     <input type="number" id="prodPrice" class="form-control mb-3" placeholder="Precio" required>
-                    <input type="text" id="prodDesc" class="form-control mb-3" placeholder="Descripción breve" required>
-                    <input type="text" id="prodImg" class="form-control mb-3" value="https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80" placeholder="URL Imagen">
-                    <button class="btn btn-dark w-100">Guardar Producto</button>
+                    <input type="text" id="prodDesc" class="form-control mb-3" placeholder="Descripción" required>
+                    <input type="text" id="prodImg" class="form-control mb-3" value="http://127.0.0.1:8000/static/ipa.jpg">
+                    <button class="btn btn-dark w-100 py-3">Guardar</button>
                 </form>
             </div>
-        </section>
-
-    </div>
+            <h5 class="fw-bold mt-5 mb-3">Inventario</h5>
+            <div id="adminProductList" class="d-flex flex-column gap-2 pb-5"></div>
+        </div>
+    </section>
 
     <div class="bottom-nav">
-        <a class="nav-icon active" onclick="showSection('home')" id="nav-home">
-            <i class="bi bi-house-door-fill"></i>
-        </a>
-        <a class="nav-icon" onclick="showSection('catalog')" id="nav-catalog">
-            <i class="bi bi-grid-fill"></i>
-        </a>
+        <a class="nav-icon active" onclick="showSection('home')" id="nav-home"><i class="bi bi-house-door-fill"></i></a>
+        <a class="nav-icon" onclick="showSection('catalog')" id="nav-catalog"><i class="bi bi-grid-fill"></i></a>
         <a class="nav-icon position-relative" onclick="showSection('cart')" id="nav-cart">
-            <i class="bi bi-bag-fill"></i>
-            <span id="badgeCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark p-1" style="font-size:0.5rem; display:none;">0</span>
+            <i class="bi bi-bag-fill"></i><span id="badgeCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1" style="font-size:0.6rem; display:none">0</span>
         </a>
-        <a class="nav-icon" onclick="showSection('orders')" id="nav-orders">
-            <i class="bi bi-receipt"></i>
-        </a>
-        <a class="nav-icon" onclick="showSection('auth')" id="nav-auth">
-            <i class="bi bi-person-circle"></i>
-        </a>
-        <a class="nav-icon" onclick="showSection('admin')" id="nav-admin" style="opacity: 0.3;">
-            <i class="bi bi-gear-fill"></i>
-        </a>
+        <a class="nav-icon" onclick="showSection('orders')" id="nav-orders"><i class="bi bi-receipt"></i></a>
+        <a class="nav-icon" onclick="showSection('auth')" id="nav-auth"><i class="bi bi-person-fill"></i></a>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

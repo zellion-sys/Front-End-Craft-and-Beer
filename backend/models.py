@@ -1,13 +1,11 @@
-# backend/models.py
 from pydantic import BaseModel, Field, EmailStr, BeforeValidator
 from typing import Optional, List, Annotated
 from bson import ObjectId
 from datetime import datetime
 
-# --- Ayudante ObjectId ---
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-# --- Modelos de Usuario ---
+# --- AUTH ---
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
@@ -30,7 +28,12 @@ class UserInDB(UserResponse):
     login_attempts: int = 0
     blocked: bool = False
 
-# --- Modelos de Producto ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+# --- PRODUCTOS ---
 class ProductBase(BaseModel):
     name: str
     type: str
@@ -38,19 +41,19 @@ class ProductBase(BaseModel):
     description: str
     image: str
     alcohol: float
+    rating: float = Field(5.0)
+    reviews: int = Field(0)
 
-# Modelo para CREAR (Lo que mandas desde el frontend/postman)
 class ProductCreate(ProductBase):
     pass
 
-# Modelo para LEER (Lo que devuelve la API con ID)
 class ProductResponse(ProductBase):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     class Config:
         populate_by_name = True
         json_encoders = {ObjectId: str}
 
-# --- Modelos de Pedido ---
+# --- PEDIDOS (CON DIRECCIÓN) ---
 class OrderItem(BaseModel):
     product_id: str
     name: str
@@ -59,11 +62,11 @@ class OrderItem(BaseModel):
 
 class Order(BaseModel):
     user_email: str
+    address: str = Field("Retiro en tienda") # <--- CAMPO CRÍTICO AGREGADO
     total_amount: int
     items: List[OrderItem]
-    status: str = "PAGADO" # Simulamos que ya pasó por Webpay
+    status: str = "PAGADO"
     created_at: datetime = Field(default_factory=datetime.utcnow)
-
     class Config:
         populate_by_name = True
         json_encoders = {ObjectId: str}
