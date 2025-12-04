@@ -2,158 +2,319 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cervecería Craft & Beer</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" href="assets/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Craft & Beer | Premium</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --dark: #111827;
+            --light: #f9fafb;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            /* Patrón de fondo sutil para que no se vea vacío */
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding-bottom: 100px;
+            color: var(--dark);
+        }
+
+        /* --- Header Transparente --- */
+        .navbar {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .navbar-brand { 
+            font-family: 'Bebas Neue', cursive; 
+            font-size: 1.8rem; 
+            letter-spacing: 1px;
+            color: var(--primary) !important;
+        }
+
+        /* --- HERO SECTION (LA PORTADA) --- */
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1575482326776-324d27ce6532?auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 85vh; /* Ocupa casi toda la pantalla */
+            border-radius: 0 0 40px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        
+        .hero-content h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 4rem;
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .hero-btn {
+            background: var(--primary);
+            color: var(--dark);
+            font-weight: 700;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+        .hero-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+            color: black;
+        }
+
+        /* --- Tarjetas de Producto --- */
+        .product-card {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .product-img-wrapper { height: 200px; overflow: hidden; position: relative; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .product-img { transform: scale(1.1); }
+        .badge-type {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.9); color: var(--dark);
+            font-weight: 600; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.7rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Navegación Inferior Flotante --- */
+        .bottom-nav {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 450px;
+            background: var(--dark);
+            border-radius: 100px;
+            padding: 15px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        .nav-icon {
+            color: rgba(255,255,255,0.5); text-align: center;
+            font-size: 0.7rem; transition: 0.3s; cursor: pointer; text-decoration: none;
+        }
+        .nav-icon i { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+        .nav-icon.active { color: var(--primary); transform: translateY(-5px); }
+        .nav-icon.active i { filter: drop-shadow(0 0 8px var(--primary)); }
+
+        /* --- Secciones y Animaciones --- */
+        .section { display: none; animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .section.active { display: block; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: 0; } }
+
+        /* --- Toasts --- */
+        .toast-container { position: fixed; top: 90px; right: 20px; z-index: 9999; }
+        .custom-toast {
+            background: white; border-left: 5px solid var(--primary);
+            padding: 15px 20px; border-radius: 8px; margin-bottom: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; align-items: center;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">
-                <span>🍺</span>
-                <h1>Craft & Beer</h1>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#inicio" class="nav-link active">Inicio</a></li>
-                <li><a href="#catalogo" class="nav-link">Catálogo</a></li>
-                <li><a href="#carrito" class="nav-link cart-link" data-count="0">Carrito <span id="cartCount">0</span></a></li>
-                <li><a href="#cuenta" class="nav-link">Mi Cuenta</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <!-- Hero Section -->
-    <section id="inicio" class="hero">
-        <div class="container">
-            <h2 class="hero-title">Cerveza Artesanal de Calidad Premium</h2>
-            <p class="hero-subtitle">Descubre los sabores únicos de nuestras cervezas craft</p>
-            <button class="btn btn-primary" onclick="showSection('catalogo')">Explorar Catálogo</button>
-        </div>
-    </section>
-
-    <!-- Búsqueda -->
-    <section class="search-section">
-        <div class="container">
-            <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar cervezas...">
-                <button class="search-btn" onclick="handleSearch()">🔍</button>
+    <nav class="navbar navbar-dark sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="navbar-brand m-0" onclick="showSection('home')"><i class="bi bi-droplet-fill"></i> CRAFT & BEER</span>
+            <div class="d-flex align-items-center gap-3">
+                <span id="userDisplay" class="text-white small opacity-75">Invitado</span>
+                <i class="bi bi-box-arrow-right text-danger d-none" id="logoutBtn" onclick="handleLogout()" style="cursor:pointer; font-size: 1.2rem;"></i>
             </div>
         </div>
-    </section>
+    </nav>
 
-    <!-- Filtros -->
-    <section class="filters-section">
-        <div class="container">
-            <div class="filters-grid">
-                <select id="typeFilter" class="filter-select" onchange="applyFilters()">
-                    <option value="">Todos los tipos</option>
-                    <option value="IPA">IPA</option>
-                    <option value="Stout">Stout</option>
-                    <option value="Lager">Lager</option>
-                    <option value="Porter">Porter</option>
-                    <option value="Wheat">Wheat</option>
-                </select>
-                <select id="priceFilter" class="filter-select" onchange="applyFilters()">
-                    <option value="">Todos los precios</option>
-                    <option value="5000">Hasta $5.000</option>
-                    <option value="10000">Hasta $10.000</option>
-                </select>
-                <button class="btn btn-secondary" onclick="clearFilters()">Limpiar Filtros</button>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <section id="home-section" class="section active">
+        <div class="hero-section">
+            <div class="hero-content">
+                <span class="text-uppercase text-warning ls-2 small fw-bold">Premium Quality</span>
+                <h1>Cerveza<br>Artesanal</h1>
+                <p class="lead mb-4 opacity-75">El sabor auténtico directo a tu puerta.</p>
+                <button class="hero-btn" onclick="showSection('catalog')">
+                    Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
+                </button>
             </div>
         </div>
-    </section>
-
-    <!-- Catálogo -->
-    <section id="catalogo" class="catalog-section">
-        <div class="container">
-            <h2 class="section-title">Nuestras Cervezas</h2>
-            <div class="products-grid" id="productsGrid"></div>
-            <div class="pagination">
-                <button class="pagination-btn" onclick="changePage(-1)">← Anterior</button>
-                <span class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
-                <button class="pagination-btn" onclick="changePage(1)">Siguiente →</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Autenticación -->
-    <section id="cuenta" class="auth-section" style="display: none;">
-        <div class="container">
-            <div class="auth-container">
-                <div class="auth-tabs">
-                    <button class="auth-tab active" onclick="showAuthTab(event, 'login')">Iniciar Sesión</button>
-                    <button class="auth-tab" onclick="showAuthTab(event, 'register')">Registrarse</button>
-                    <button class="auth-tab" onclick="showAuthTab(event, 'recover')">Recuperar Contraseña</button>
+        
+        <div class="container mb-5">
+            <div class="row g-4 text-center">
+                <div class="col-4">
+                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
+                        <i class="bi bi-lightning-charge-fill text-warning fs-2"></i>
+                        <h6 class="mt-2 fw-bold">Rápido</h6>
+                    </div>
                 </div>
-
-                <form id="loginForm" class="auth-form active">
-                    <h3>Iniciar Sesión</h3>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" class="form-input" placeholder="usuario@ejemplo.com" required>
+                <div class="col-4">
+                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
+                        <i class="bi bi-shield-check-fill text-success fs-2"></i>
+                        <h6 class="mt-2 fw-bold">Seguro</h6>
                     </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div class="col-4">
+                    <div class="p-3 bg-white rounded-4 shadow-sm h-100">
+                        <i class="bi bi-award-fill text-primary fs-2"></i>
+                        <h6 class="mt-2 fw-bold">Premium</h6>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="handleLogin()">Ingresar</button>
-                    <div id="loginMessage" class="message"></div>
-                </form>
-
-                <form id="registerForm" class="auth-form">
-                    <h3>Crear Cuenta</h3>
-                    <div class="form-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" id="registerName" class="form-input" placeholder="Juan Pérez" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="registerEmail" class="form-input" placeholder="usuario@ejemplo.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 8 caracteres" required>
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="handleRegister()">Registrarse</button>
-                    <div id="registerMessage" class="message"></div>
-                </form>
-
-                <form id="recoverForm" class="auth-form">
-                    <h3>Recuperar Contraseña</h3>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="recoverEmail" class="form-input" placeholder="usuario@ejemplo.com" required>
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="handleRecovery()">Enviar Enlace</button>
-                    <div id="recoverMessage" class="message"></div>
-                </form>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Carrito -->
-    <div id="cartSidebar" class="cart-sidebar">
-        <div class="cart-header">
-            <h3>🛒 Tu Carrito</h3>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
-        <div class="cart-content" id="cartContent"></div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                Total: $<span id="cartTotal">0</span>
+    <div class="container mt-4">
+        
+        <section id="catalog-section" class="section">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="fw-bold m-0 flex-grow-1">Nuestra Selección</h2>
+                <button class="btn btn-outline-dark rounded-circle" onclick="fetchProducts()"><i class="bi bi-arrow-clockwise"></i></button>
             </div>
-            <button class="btn btn-primary" onclick="proceedToCheckout()">Proceder al Pago</button>
-        </div>
+
+            <div class="d-flex gap-2 overflow-auto mb-4 pb-2" style="scrollbar-width: none;">
+                <button class="btn btn-dark rounded-pill px-4" onclick="applyFilterType('')">Todo</button>
+                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('IPA')">IPA</button>
+                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('Stout')">Stout</button>
+                <button class="btn btn-light border rounded-pill px-4" onclick="applyFilterType('Lager')">Lager</button>
+            </div>
+
+            <div id="productsGrid" class="row g-3">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-warning"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="auth-section" class="section">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-lg p-4 rounded-5 text-center">
+                        <div class="mb-4">
+                            <div class="bg-warning bg-opacity-10 d-inline-block p-3 rounded-circle text-warning mb-3">
+                                <i class="bi bi-person-fill fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold">Cuenta de Usuario</h3>
+                        </div>
+
+                        <div id="loginBlock">
+                            <form onsubmit="event.preventDefault(); handleLogin();">
+                                <input type="email" id="loginEmail" class="form-control mb-3 p-3 bg-light border-0" placeholder="Correo electrónico" required>
+                                <input type="password" id="loginPass" class="form-control mb-3 p-3 bg-light border-0" placeholder="Contraseña" required>
+                                <button type="submit" class="btn btn-dark w-100 py-3 rounded-4 fw-bold">Ingresar</button>
+                            </form>
+                            <p class="mt-3 text-muted small">¿No tienes cuenta? <a href="#" onclick="toggleAuthMode()" class="text-warning fw-bold">Regístrate</a></p>
+                        </div>
+
+                        <div id="registerBlock" style="display:none;">
+                            <form onsubmit="event.preventDefault(); handleRegister();">
+                                <input type="text" id="regName" class="form-control mb-3 p-3 bg-light border-0" placeholder="Tu Nombre" required>
+                                <input type="email" id="regEmail" class="form-control mb-3 p-3 bg-light border-0" placeholder="Correo electrónico" required>
+                                <input type="password" id="regPass" class="form-control mb-3 p-3 bg-light border-0" placeholder="Contraseña (Min 8)" required>
+                                <button type="submit" class="btn btn-warning w-100 py-3 rounded-4 fw-bold">Crear Cuenta</button>
+                            </form>
+                            <p class="mt-3 text-muted small">¿Ya tienes cuenta? <a href="#" onclick="toggleAuthMode()" class="text-dark fw-bold">Ingresa aquí</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cart-section" class="section">
+            <h2 class="fw-bold mb-4">Tu Pedido</h2>
+            <div id="cartItems"></div>
+            
+            <div class="card border-0 shadow-lg rounded-4 bg-dark text-white p-4 mt-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="opacity-75">Envío</span>
+                    <span class="text-success">GRATIS</span>
+                </div>
+                <div class="d-flex justify-content-between mb-4 fs-3 fw-bold">
+                    <span>Total</span>
+                    <span id="cartTotal" class="text-warning">$0</span>
+                </div>
+                <button class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow" onclick="proceedToCheckout()">
+                    Confirmar Pedido <i class="bi bi-bag-check-fill ms-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="orders-section" class="section">
+            <h2 class="fw-bold mb-4">Historial</h2>
+            <div id="ordersList" class="d-flex flex-column gap-3"></div>
+        </section>
+
+        <section id="admin-section" class="section">
+            <div class="card border-0 shadow-sm p-4 rounded-4">
+                <h4 class="mb-4 text-danger"><i class="bi bi-shield-lock-fill"></i> Panel Admin</h4>
+                <form onsubmit="event.preventDefault(); createProduct();">
+                    <input type="text" id="prodName" class="form-control mb-3" placeholder="Nombre Cerveza" required>
+                    <select id="prodType" class="form-select mb-3">
+                        <option value="IPA">IPA</option>
+                        <option value="Stout">Stout</option>
+                        <option value="Lager">Lager</option>
+                    </select>
+                    <input type="number" id="prodPrice" class="form-control mb-3" placeholder="Precio" required>
+                    <input type="text" id="prodDesc" class="form-control mb-3" placeholder="Descripción breve" required>
+                    <input type="text" id="prodImg" class="form-control mb-3" value="https://images.unsplash.com/photo-1518176258769-f227c798150e?auto=format&fit=crop&w=400&q=80" placeholder="URL Imagen">
+                    <button class="btn btn-dark w-100">Guardar Producto</button>
+                </form>
+            </div>
+        </section>
+
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Cervecería Craft & Beer. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    <div class="bottom-nav">
+        <a class="nav-icon active" onclick="showSection('home')" id="nav-home">
+            <i class="bi bi-house-door-fill"></i>
+        </a>
+        <a class="nav-icon" onclick="showSection('catalog')" id="nav-catalog">
+            <i class="bi bi-grid-fill"></i>
+        </a>
+        <a class="nav-icon position-relative" onclick="showSection('cart')" id="nav-cart">
+            <i class="bi bi-bag-fill"></i>
+            <span id="badgeCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark p-1" style="font-size:0.5rem; display:none;">0</span>
+        </a>
+        <a class="nav-icon" onclick="showSection('orders')" id="nav-orders">
+            <i class="bi bi-receipt"></i>
+        </a>
+        <a class="nav-icon" onclick="showSection('auth')" id="nav-auth">
+            <i class="bi bi-person-circle"></i>
+        </a>
+        <a class="nav-icon" onclick="showSection('admin')" id="nav-admin" style="opacity: 0.3;">
+            <i class="bi bi-gear-fill"></i>
+        </a>
+    </div>
 
     <script src="js/app.js"></script>
 </body>

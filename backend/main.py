@@ -1,131 +1,79 @@
-# main.py
+# backend/main.py
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from models import ProductResponse, UserRegister, UserLogin, UserResponse, UserInDB, Order
-from database import connect_to_mongo, close_mongo_connection, get_products_collection, get_users_collection, get_orders_collection, seed_data, seed_test_user
+from models import ProductResponse, ProductCreate, UserRegister, UserLogin, UserResponse, UserInDB, Order, OrderResponse
+from database import connect_to_mongo, close_mongo_connection, get_products_collection, get_users_collection, get_orders_collection, seed_data
 from auth import verify_password, get_password_hash, create_access_token, get_current_user_email
 from datetime import timedelta
-import re 
-from bson import ObjectId
+import re
 
-# --- CONFIGURACIÓN DE FASTAPI ---
-app = FastAPI(title="Cervecería Craft & Beer API", version="2.0.0")
+app = FastAPI(title="Cervecería Craft API", version="3.0.0")
 
-# Configurar CORS 
-# Configurar CORS (MODO PERMISIVO PARA QUE FUNCIONE YA)
+# CORS: Permitir todo para evitar problemas en la demo
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # <--- ESTO ES LA CLAVE: El asterisco permite todo
+    allow_origin_regex="https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.on_event("startup")
-async def startup_db_client():
+async def startup():
     await connect_to_mongo()
     await seed_data()
-    await seed_test_user()
 
 @app.on_event("shutdown")
-async def shutdown_db_client():
+async def shutdown():
     await close_mongo_connection()
 
-# ----------------------------------------------------
-# 🔑 ENDPOINTS DE AUTENTICACIÓN (DB 1: Users)
-# ----------------------------------------------------
-
-@app.post("/api/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register_user(user_data: UserRegister):
-    collection = get_users_collection()
-    if await collection.find_one({"email": user_data.email}):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="❌ Este email ya está registrado")
-    
-    hashed_password = get_password_hash(user_data.password)
-    user_in_db = UserInDB(name=user_data.name, email=user_data.email, hashed_password=hashed_password)
-    result = await collection.insert_one(user_in_db.dict(exclude_none=True, by_alias=True))
-    
-    response_data = user_in_db.dict(exclude={"hashed_password", "login_attempts", "blocked"})
-    response_data["id"] = str(result.inserted_id)
-    return response_data
+# --- AUTH ---
+@app.post("/api/auth/register", response_model=UserResponse)
+async def register(user: UserRegister):
+    coll = get_users_collection()
+    if await coll.find_one({"email": user.email}):
+        raise HTTPException(400, "Email ya registrado")
+    user_dict = UserInDB(**user.dict(), hashed_password=get_password_hash(user.password)).dict(by_alias=True)
+    res = await coll.insert_one(user_dict)
+    return {**user.dict(), "id": str(res.inserted_id)}
 
 @app.post("/api/auth/login")
-async def login_user(user_data: UserLogin):
-    collection = get_users_collection()
-    user_db = await collection.find_one({"email": user_data.email})
+async def login(user: UserLogin):
+    coll = get_users_collection()
+    db_user = await coll.find_one({"email": user.email})
+    if not db_user or not verify_password(user.password, db_user["hashed_password"]):
+        raise HTTPException(401, "Credenciales inválidas")
     
-    if not user_db or not verify_password(user_data.password, user_db["hashed_password"]):
-        # Lógica de intentos fallidos simplificada: solo levanta error
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="❌ Email o contraseña incorrectos")
+    token = create_access_token({"sub": user.email}, timedelta(minutes=60))
+    return {"access_token": token, "user": {"name": db_user["name"], "email": db_user["email"]}}
 
-    user = UserInDB(**user_db)
-    
-    # Restablecer intentos al login exitoso
-    await collection.update_one({"_id": user.id}, {"$set": {"login_attempts": 0}})
-    
-    # Crear token JWT
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=timedelta(minutes=30)
-    )
-    
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer",
-        "user": UserResponse(id=user.id, name=user.name, email=user.email).dict(by_alias=True)
-    }
-
-# ----------------------------------------------------
-# 🍺 ENDPOINT DE PRODUCTOS (DB 2: Products)
-# ----------------------------------------------------
-
+# --- PRODUCTOS ---
 @app.get("/api/products", response_model=List[ProductResponse])
-async def read_products(
-    type: Optional[str] = None, 
-    max_price: Optional[int] = None,
-    search: Optional[str] = None
-):
-    """Obtiene el catálogo de cervezas con filtros."""
-    collection = get_products_collection()
+async def get_products(type: str = None, max_price: int = None, search: str = None):
     query = {}
-    
     if type: query["type"] = type
-    if max_price is not None: query["price"] = {"$lte": max_price}
-        
+    if max_price: query["price"] = {"$lte": max_price}
     if search:
-        search_pattern = re.escape(search)
-        text_query = {"$or": [ {"name": {"$regex": search_pattern, "$options": "i"}}, {"type": {"$regex": search_pattern, "$options": "i"}}, {"description": {"$regex": search_pattern, "$options": "i"}} ]}
-        query = {"$and": [query, text_query]} if query else text_query
+        regex = {"$regex": re.escape(search), "$options": "i"}
+        query["$or"] = [{"name": regex}, {"description": regex}]
+    
+    return await get_products_collection().find(query).to_list(100)
 
-    products_cursor = collection.find(query)
-    products_list = await products_cursor.to_list(length=100)
-    return products_list
+# NUEVO: Endpoint para CREAR productos (Para que llenes tu DB)
+@app.post("/api/products", status_code=201)
+async def create_product(product: ProductCreate):
+    res = await get_products_collection().insert_one(product.dict())
+    return {"id": str(res.inserted_id), "message": "Producto creado"}
 
-# ----------------------------------------------------
-# 🛒 ENDPOINT PROTEGIDO DE PEDIDOS (DB 3: Orders)
-# ----------------------------------------------------
+# --- PEDIDOS ---
+@app.post("/api/checkout", status_code=201)
+async def checkout(order: Order, email: str = Depends(get_current_user_email)):
+    order.user_email = email # Asegurar que el pedido sea del usuario logueado
+    res = await get_orders_collection().insert_one(order.dict(by_alias=True))
+    return {"order_id": str(res.inserted_id), "message": "Pedido guardado"}
 
-@app.post("/api/checkout", status_code=status.HTTP_201_CREATED)
-async def proceed_to_checkout(
-    order_data: Order,
-    current_user_email: str = Depends(get_current_user_email) # ⬅️ RUTA PROTEGIDA
-):
-    """Guarda un pedido en la base de datos y simula el pago, requiere token JWT."""
-    orders_collection = get_orders_collection()
-    
-    # Aseguramos que el pedido se asocie al usuario que está logueado
-    order_data.user_email = current_user_email
-    
-    # 1. Guardar el pedido en la DB
-    order_dict = order_data.dict(by_alias=True)
-    result = await orders_collection.insert_one(order_dict)
-    
-    # 2. Simulación de pago
-    
-    return {
-        "message": "✅ Compra exitosa! Pedido guardado en DB (requirió login).",
-        "order_id": str(result.inserted_id),
-        "total": order_data.total_amount,
-        "user": current_user_email
-    }
+# NUEVO: Endpoint para VER MIS PEDIDOS (Para demostrar integración en el video)
+@app.get("/api/orders/me", response_model=List[OrderResponse])
+async def my_orders(email: str = Depends(get_current_user_email)):
+    return await get_orders_collection().find({"user_email": email}).to_list(100)
