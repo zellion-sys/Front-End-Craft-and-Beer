@@ -205,19 +205,42 @@
 
     <section id="cart-section" class="section">
         <div class="container mt-4">
-            <h2 class="fw-bold mb-4">Carrito</h2>
+            <h2 class="fw-bold mb-4">Finalizar Compra</h2>
+            
             <div id="cartItems"></div>
             
-            <div class="card p-4 border-0 shadow-sm mt-4 bg-white rounded-4">
+            <div class="card p-3 border-0 shadow-sm mt-3 bg-white rounded-4">
                 <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt text-danger"></i> Dirección de Envío</h6>
-                <input type="text" id="deliveryAddress" class="form-control p-3 bg-light border-0" placeholder="Ej: Av. Providencia 1234">
+                <input type="text" id="deliveryAddress" class="form-control" placeholder="Ej: Av. Providencia 1234">
             </div>
 
-            <div class="card bg-dark text-white p-4 rounded-4 shadow-lg mt-3 border-0">
+            <div class="card p-3 border-0 shadow-sm mt-3 bg-white rounded-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-credit-card text-primary"></i> Datos de Pago</h6>
+                
+                <div class="mb-3">
+                    <input type="text" id="cardName" class="form-control mb-2" placeholder="Nombre en la tarjeta">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text bg-white"><i class="bi bi-credit-card-2-front"></i></span>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19">
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="text" id="cardExp" class="form-control" placeholder="MM/AA" maxlength="5">
+                        </div>
+                        <div class="col-6">
+                            <input type="password" id="cardCvv" class="form-control" placeholder="CVV" maxlength="3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-dark text-white p-4 rounded-4 shadow-lg mt-3 border-0 mb-5">
                 <div class="d-flex justify-content-between mb-4 fs-3 fw-bold">
                     <span>Total</span><span id="cartTotal" class="text-warning">$0</span>
                 </div>
-                <button class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow" onclick="proceedToCheckout()">Pagar Ahora</button>
+                <button class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow" onclick="proceedToCheckout()">
+                    Pagar y Guardar <i class="bi bi-check-circle-fill ms-2"></i>
+                </button>
             </div>
         </div>
     </section>

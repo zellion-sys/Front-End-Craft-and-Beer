@@ -122,32 +122,63 @@ async function handleLogin() {
 }
 
 // --- CHECKOUT ---
+// --- CHECKOUT CON TARJETA Y DIRECCIÓN ---
 async function proceedToCheckout() {
     if(cart.length===0) return showToast("Carrito vacío", "error");
-    if(!token) { showToast("Inicia sesión", "error"); showSection('auth'); return; }
+    if(!token) { showToast("Inicia sesión para pagar", "error"); showSection('auth'); return; }
     
-    const addr = document.getElementById("deliveryAddress").value || "Retiro en tienda";
+    // 1. Capturar Dirección
+    const addr = document.getElementById("deliveryAddress").value;
+    if(!addr) return showToast("Falta la dirección de envío", "error");
+
+    // 2. Capturar y Validar Tarjeta
+    const cardNum = document.getElementById("cardNumber").value;
+    const cardCvv = document.getElementById("cardCvv").value;
+    
+    if(!cardNum || cardNum.length < 16 || !cardCvv) {
+        return showToast("Datos de tarjeta inválidos", "error");
+    }
+
+    // Simulamos seguridad: Solo guardamos los últimos 4 dígitos
+    const last4 = cardNum.slice(-4);
+    const paymentInfo = `Tarjeta terminada en **** ${last4}`;
+
+    // 3. Mostrar Pantalla de Carga
     const overlay = document.getElementById("paymentOverlay");
     overlay.style.display = "flex";
 
     setTimeout(async () => {
+        // Datos a enviar al Backend
         const orderData = { 
             user_email: user.email, 
             address: addr,
+            payment_info: paymentInfo, // <--- Enviamos la info de la tarjeta
             total_amount: cart.reduce((s,p)=>s+p.price,0), 
             items: cart.map(p=>({product_id: p.id||p._id, name:p.name, price:p.price, quantity:1})) 
         };
+
         try {
             const res = await fetch(`${API_URL}/checkout`, { 
-                method:"POST", headers:{"Content-Type":"application/json", "Authorization":`Bearer ${token}`}, 
+                method:"POST", 
+                headers:{"Content-Type":"application/json", "Authorization":`Bearer ${token}`}, 
                 body:JSON.stringify(orderData)
             });
+            
             overlay.style.display = "none";
+            
             if(res.ok) { 
-                showToast("¡Pago Aprobado!"); 
-                cart=[]; updateCartCount(); loadMyOrders(); showSection('orders'); 
-            } else showToast("Error pago", "error");
-        } catch(e){ overlay.style.display="none"; showToast("Error", "error"); }
+                showToast("✅ ¡Pago y Datos Guardados Exitosamente!"); // Mensaje de éxito
+                cart=[]; 
+                updateCartCount(); 
+                loadMyOrders(); 
+                showSection('orders'); 
+            } 
+            else showToast("Error al procesar el pago", "error");
+
+        } catch(e){ 
+            overlay.style.display="none"; 
+            showToast("Error de conexión", "error"); 
+        }
     }, 2000);
 }
 

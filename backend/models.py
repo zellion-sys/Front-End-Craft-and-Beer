@@ -53,7 +53,7 @@ class ProductResponse(ProductBase):
         populate_by_name = True
         json_encoders = {ObjectId: str}
 
-# --- PEDIDOS (CON DIRECCIÓN) ---
+# --- PEDIDOS ---
 class OrderItem(BaseModel):
     product_id: str
     name: str
@@ -62,7 +62,9 @@ class OrderItem(BaseModel):
 
 class Order(BaseModel):
     user_email: str
-    address: str = Field("Retiro en tienda") # <--- CAMPO CRÍTICO AGREGADO
+    address: str = Field("Retiro en tienda")
+    # CAMPO NUEVO: INFORMACIÓN DE PAGO
+    payment_info: str = Field("Webpay") 
     total_amount: int
     items: List[OrderItem]
     status: str = "PAGADO"
